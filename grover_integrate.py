@@ -3,6 +3,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate as integrate
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import pygame
+
+class Mass:
+    def __init__(self,(x,y),radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.colour = (255, 0, 0)
+        self.thickness = 0
+    def display(self):
+        pygame.draw.circle(screen, self.colour, (self.x, self.y), self.radius, self.thickness)
 
 def rhs(state, t):
     dydx = np.zeros_like(state)
@@ -37,17 +49,52 @@ def solver():
 
 #physical parameters
 M = 64.0;m = 15.0;k = 5.0;K = 12.0
-N = 10 #number of m's
+N = 100 #number of m's
 V = 1.0 #init vel of m's
-target = 3 #target entry out of [0,1,2,3]
 wt = np.sqrt(k/m) #$\omega_{t}$
 wp = 1.5*wt #$\omega_{+}$
 wm = 0.5*wt #$\omega_{-}$
+
+#Q = int(np.pi/4 * np.sqrt(N)) #theoretical limit of no. of iterations
+target = 3 #target entry out of [0,1,2,3,...]
 delta = 2*np.pi/wt #time period of tapping = half the time period of target
-Q = int(np.pi/4 * np.sqrt(N)) #theoretical limit of no. of iterations
+Q = int( np.sqrt(N)) #theoretical limit of no. of iterations
 t_end = delta*Q #corresponding time limit
-res = 50
+res = 20 #resolution
 dt = delta/res #each half cycle is divided with a resolution of res
 
 solution = solver()
-print solution[res*Q-1] #test
+#print solution[res*Q-1] #test
+
+t = np.arange(0,dt*len(solution),dt)
+plt.plot(t,(solution[:,target+N]),'r--')
+plt.plot(t,(solution[:,target+N-1]),'b--')
+plt.xlabel("t")
+plt.ylabel("velocity")
+plt.show()
+#graphics
+'''
+(width,height) = (800,600)
+rad = 10 #radius of each m
+x0 = width/(N+1)
+y0 = height/2
+
+background_colour = (20,255,200)
+screen = pygame.display.set_mode((width, height))
+
+pygame.display.set_caption('Grover\'s Algorithm with Coupled Oscillators')
+screen.fill(background_colour)
+
+masses = []
+for i in range(N):
+    masses.append(Mass((x0+i*x0,y0),rad))
+for mass in masses:
+    mass.display()
+
+pygame.display.flip() #to display the window
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+'''
