@@ -15,20 +15,6 @@ def rhs(state, t):
     dydx[len(state)-1] = -(K/M)*state[2*N] + (k/M)*np.sum(state[:N] - state[2*N])
     return dydx
 
-#physical parameters
-M = 64.0;m = 15.0;k = 5.0;K = 12.0
-N = 10 #number of m's
-V = 1.0 #init vel of m's
-target = 3 #target entry out of [0,1,2,3]
-wt = np.sqrt(k/m) #$\omega_{t}$
-wp = 1.5*wt #$\omega_{+}$
-wm = 0.5*wt #$\omega_{-}$
-delta = 2*np.pi/wt #time period of tapping = half the time period of target
-Q = int(np.pi/4 * np.sqrt(N)) #theoretical limit of no. of iterations
-t_end = delta*Q #corresponding time limit
-res = 50
-dt = delta/res #each half cycle is divided with a resolution of res
-
 def solver():
     y = np.zeros((1,N))
     ydot = np.full((1,N),V)
@@ -49,5 +35,19 @@ def solver():
         sol[(int(t_i/dt),target+N)] = -1 * sol[(int(t_i/dt),target+N)] #inverting the velocity of target
     return sol
 
+#physical parameters
+M = 64.0;m = 15.0;k = 5.0;K = 12.0
+N = 10 #number of m's
+V = 1.0 #init vel of m's
+target = 3 #target entry out of [0,1,2,3]
+wt = np.sqrt(k/m) #$\omega_{t}$
+wp = 1.5*wt #$\omega_{+}$
+wm = 0.5*wt #$\omega_{-}$
+delta = 2*np.pi/wt #time period of tapping = half the time period of target
+Q = int(np.pi/4 * np.sqrt(N)) #theoretical limit of no. of iterations
+t_end = delta*Q #corresponding time limit
+res = 50
+dt = delta/res #each half cycle is divided with a resolution of res
+
 solution = solver()
-print solution[res*Q-1]
+print solution[res*Q-1] #test
