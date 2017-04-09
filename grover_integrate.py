@@ -1,8 +1,6 @@
 from numpy import sin, cos
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.integrate as integrate
-import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import pygame
 import time
@@ -41,11 +39,14 @@ def solver():
     t_i = 0.0
     while t_i<t_end:
         t = np.arange(t_i, t_i+delta+dt, dt)
-        ic = sol[int(t_i/dt),:]
+        #ic = sol[int(t_i/dt),:]
+        ic = state
         temp_sol = integrate.odeint(rhs,ic,t) #solving the ode between half periods
         t_i = t_i + delta
-        sol = np.vstack((sol,temp_sol))
-        sol[(int(t_i/dt),target+N)] = -1 * sol[(int(t_i/dt),target+N)] #inverting the velocity of target
+        sol = np.vstack((sol,temp_sol[1:,:]))
+        state = sol[int(t_i/dt),:]
+        state[target+N] = -1 * state[target+N]
+        #sol[(int(t_i/dt),target+N)] = -1 * sol[(int(t_i/dt),target+N)] #inverting the velocity of target
     return sol
 
 #physical parameters
@@ -61,21 +62,23 @@ target = 3 #target entry out of [0,1,2,3,...]
 delta = 2*np.pi/wt #time period of tapping = half the time period of target
 Q = int(np.pi/4 * np.sqrt(N)) #theoretical optimal limit of no. of iterations
 t_end = delta*Q #corresponding time limit
-res = 50 #resolution
+res = 800 #resolution
 dt = delta/res #each half cycle is divided with a resolution of res
 
 solution = solver() #solving the ode
 
 #velocity space graph
-'''
-t = np.arange(0,dt*len(solution),dt)
-plt.plot(t,(solution[:,target+N]),'r--')
-plt.plot(t,(solution[:,target+N-1]),'b--')
-plt.xlabel("t")
-plt.ylabel("velocity")
-plt.show()
-'''
 
+t = np.arange(0,dt*len(solution),dt)
+tgt, = plt.plot(t,(solution[:,target+N]),'r--')
+nontgt, = plt.plot(t,(solution[:,target+N-1]),'b--')
+plt.xlabel(r'$t$', fontsize = 18)
+plt.ylabel(r'$v$', fontsize = 18)
+plt.title(r'$v$ versus time')
+plt.legend([tgt,nontgt],["Target","Non-target"],loc = 'best')
+plt.show()
+
+'''
 #graphics
 (width,height) = (1000,800)
 rad = 5 #radius of each m
@@ -108,4 +111,5 @@ while running:
     if int(ti/dt) == len(solution):
         ti = 0.0
         time.sleep(5)
-    clock.tick(10calc)
+    clock.tick(300)
+'''
